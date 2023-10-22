@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fila</title>
+  <style>
+    body {
+      font-family: Roboto;
+      background-color: #d8eaff;
+    }
+
+    .container {
+      margin: 20px;
+    }
+
+    .queue-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .queue-item {
+      font-size: 16px;
+      display: inline-block;
+      background-color: #8dc0e2;
+      color: white;
+      padding: 10px;
+      border: 1px solid #334552;
+      border-radius: 5px;
+      margin: 5px;
+      transition: all 0.3s;
+      width: 100px;
+      text-align: center;
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .queue-item-enter {
+      opacity: 0;
+      transform: translateX(100%);
+      animation: slideIn 0.5s ease-out forwards, fadeIn 0.5s ease-out forwards;
+    }
+
+    @keyframes slideIn {
+      0% {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .queue-item-leave {
+      opacity: 0;
+      transform: translateX(-100%);
+      animation: slideOut 0.5s ease-out forwards;
+    }
+
+    @keyframes slideOut {
+      0% {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(-100%);
+      }
+    }
+
+    button:hover {
+      background-color: #455c6d;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      border: none;
+      margin-right: 10px;
+      transition: all 0.3s;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    h2 {
+      font-size: 32px;
+      color: #204158;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Fila</h2>
+    <button onclick="insereElemento()">Inserir Elemento</button>
+    <button onclick="removeElemento()">Remover Elemento</button>
+    <button onclick="consultaPrimeiro()">Consultar Primeiro</button>
+    <br><br>
+    <div class="queue-container" id="queueContainer">
+      <!-- Fila será exibida aqui -->
+    </div>
+  </div>
+
+  <script>
+    class FilaSeq {
+      constructor(n = 5) {
+        this.dados = new Array(n);
+        this.inicio = 0;
+        this.fim = -1;
+        this.nElementos = 0;
+      }
+
+      vazia() {
+        return this.nElementos === 0;
+      }
+
+      cheia() {
+        return this.nElementos === this.dados.length;
+      }
+
+      tamanho() {
+        return this.nElementos;
+      }
+
+      insere(valor) {
+        if (this.cheia() || !Number.isInteger(valor)) {
+          return false;
+        }
+        this.fim = (this.fim + 1) % this.dados.length;
+        this.dados[this.fim] = valor;
+        this.nElementos++;
+        return true;
+      }
+
+      remove() {
+        if (this.vazia()) {
+          return -1;
+        }
+        const valor = this.dados[this.inicio];
+        this.inicio = (this.inicio + 1) % this.dados.length;
+        this.nElementos--;
+        return valor;
+      }
+
+      primeiro() {
+        if (this.vazia()) {
+          return -1;
+        }
+        return this.dados[this.inicio];
+      }
+    }
+
+    // CRIA INSTANCIA DA FILA
+    const fila = new FilaSeq(10);
+    const queueContainer = document.getElementById('queueContainer');
+
+    function renderizarFila() {
+      queueContainer.innerHTML = '';
+
+      for (let i = 0; i < fila.tamanho(); i++) {
+        const queueItem = document.createElement('div');
+        queueItem.className = 'queue-item queue-item-enter';
+        queueItem.textContent = fila.dados[(fila.inicio + i) % fila.dados.length];
+        queueContainer.appendChild(queueItem);
+      }
+    }
+
+    function insereElemento() {
+      const valor = parseInt(prompt('Digite o valor a ser inserido:'));
+      const sucesso = fila.insere(valor);
+      if (sucesso) {
+        renderizarFila();
+      }else {
+        alert('Fila cheia ou valor inválido.');
+      }
+    }
+
+    function removeElemento() {
+      const valorRemovido = fila.remove();
+      if (valorRemovido !== -1) {
+        const queueItems = document.querySelectorAll('.queue-item');
+        if (queueItems.length > 0) {
+          const primeiroItem = queueItems[0];
+          primeiroItem.classList.add('queue-item-leave');
+          setTimeout(() => {
+            renderizarFila();
+          }, 500); // Tempo da animação
+        }
+      }else {
+        alert('Fila vazia.');
+      }
+    }
+
+    function consultaPrimeiro() {
+      const valorPrimeiro = fila.primeiro();
+      if (valorPrimeiro !== -1) {
+        alert(`O primeiro elemento da fila é ${valorPrimeiro}`);
+      } else {
+        alert('Fila vazia.');
+      }
+    }
+
+    renderizarFila(); // Renderizar a fila inicial
+  </script>
+</body>
+</html>
