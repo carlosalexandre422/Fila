@@ -35,6 +35,19 @@
       text-align: center;
       opacity: 1;
       transform: translateX(0);
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      background-color: #455c6d;
+    }
+
+    .queue-item:hover, .queue-full .queue-item:hover {
+      background-color: #455c6d;
+    }
+
+    .queue-full .queue-item {
+      background-color: #ff0000;
     }
 
     .queue-item-enter {
@@ -53,13 +66,6 @@
         transform: translateX(0);
       }
     }
-
-    .queue-item-leave {
-      opacity: 0;
-      transform: translateX(-100%);
-      animation: slideOut 0.5s ease-out forwards;
-    }
-
     @keyframes slideOut {
       0% {
         opacity: 1;
@@ -69,6 +75,12 @@
         opacity: 0;
         transform: translateX(-100%);
       }
+    }
+
+    .queue-item-leave {
+      opacity: 0;
+      transform: translateX(-100%);
+      animation: slideOut 0.5s ease-out forwards;
     }
 
     button:hover {
@@ -133,6 +145,12 @@
         this.fim = (this.fim + 1) % this.dados.length;
         this.dados[this.fim] = valor;
         this.nElementos++;
+
+        // Verifica se a fila está cheia e aplica a classe 'queue-full'
+        if (this.cheia()) {
+          document.getElementById('queueContainer').classList.add('queue-full');
+        }
+
         return true;
       }
 
@@ -143,6 +161,10 @@
         const valor = this.dados[this.inicio];
         this.inicio = (this.inicio + 1) % this.dados.length;
         this.nElementos--;
+
+        // Remove a classe 'queue-full' ao remover um elemento
+        document.getElementById('queueContainer').classList.remove('queue-full');
+
         return valor;
       }
 
@@ -174,8 +196,11 @@
       const sucesso = fila.insere(valor);
       if (sucesso) {
         renderizarFila();
-      }else {
-        alert('Fila cheia ou valor inválido.');
+      } else {
+        if (fila.cheia()) {
+          alert('Fila cheia.');
+        } else
+        alert('Valor inválido.');
       }
     }
 
@@ -190,7 +215,7 @@
             renderizarFila();
           }, 500); // Tempo da animação
         }
-      }else {
+      } else {
         alert('Fila vazia.');
       }
     }
